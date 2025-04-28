@@ -1,0 +1,12 @@
+(test
+ (name test_deb_builder)
+ (libraries
+  ;; local libraries
+  deb_builder_lib
+  ;; opam libraries
+  alcotest-async
+  core
+  async
+  re2)
+ (preprocess
+  (pps ppx_jane ppx_deriving_yojson)))

@@ -1,0 +1,11 @@
+(executable
+ (public_name deb_builder)
+ (name deb_builder)
+ (libraries
+  ;; opam library
+  core
+  async
+  ;; local library
+  deb_builder_lib)
+ (preprocess
+  (pps ppx_jane)))

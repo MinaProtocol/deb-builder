@@ -1,0 +1,13 @@
+(library
+ (name deb_builder_lib)
+ (libraries
+  ;; opam library
+  core
+  async
+  yojson
+  jingoo
+  fileutils
+  dolog
+  str)
+ (preprocess
+  (pps ppx_jane ppx_deriving_yojson)))
