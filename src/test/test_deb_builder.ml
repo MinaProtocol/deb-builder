@@ -21,16 +21,22 @@ let import_key path expected_key_id =
   return key_id
 
 let end_to_end_build_and_sign () =
-  let build_dir = "./res/build_dir" in
-  let secret_key = "./res/private-key.gpg" in
-  let public_key = "./res/public-key.gpg" in
+  let open Deferred.Let_syntax in
+  let cwd = Sys.getenv "PWD" |> Option.value_exn in
+  Async.printf "Current working directory: %s\n%!" cwd ;
+  let build_dir = Filename.concat cwd "res/build_dir" in
+  let secret_key = Filename.concat cwd "res/secret-key.gpg" in
+  let public_key = Filename.concat cwd "res/public-key.gpg" in
   let expected_key_id = "40C7DD112EDB4CA9" in
 
-  let input =
-    Deb_builder_lib.Builder.evaluate_and_validate_inputs ~build_dir
+  let cmd_input =
+    Deb_builder_lib.Builder.cmd_input_default ~build_dir
       ~package_name:"example-app" ~package_description:"example app"
       ~version:"1.0.0" ~output_dir:"./output" ~codename:"focal" ~suite:"stable"
-      ~defaults_file:"./res/defaults.json" ()
+      ~defaults_file:(Some (Filename.concat cwd "res/defaults.json"))
+  in
+  let input =
+    Deb_builder_lib.Builder.evaluate_and_validate_inputs cmd_input
     |> Or_error.ok_exn
   in
   let%bind () =

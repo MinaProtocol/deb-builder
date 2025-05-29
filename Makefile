@@ -1,0 +1,23 @@
+# Makefile for OCaml project with app in src/bin
+
+OCAMLBUILD=dune
+BUILD_DIR=_build
+BIN_DIR=src/bin
+TEST_DIR=src/test
+APP_NAME=deb_builder
+
+.PHONY: all clean build run
+
+all: build
+
+build:
+	$(OCAMLBUILD) build $(BIN_DIR)/$(APP_NAME).exe
+
+test:
+	$(OCAMLBUILD) test $(TEST_DIR)
+
+run: build
+	./$(BUILD_DIR)/$(BIN_DIR)/$(APP_NAME).exe
+
+clean:
+	$(OCAMLBUILD) -clean

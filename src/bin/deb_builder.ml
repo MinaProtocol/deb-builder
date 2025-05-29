@@ -113,16 +113,40 @@ let build =
        Log.set_output stdout ;
        Log.info "Building debian package for %s...\n" package_name ;
        let open Deferred.Let_syntax in
+       let cmd_input: Deb_builder_lib.Builder.cmd_input =
+         { defaults_file 
+         ; build_dir
+         ; output_dir
+         ; clean
+         ; package_name
+         ; version
+         ; vendor
+         ; package_authors
+         ; package_maintainer
+         ; package_description
+         ; package_section
+         ; package_priority
+         ; package_homepage
+         ; package_installed_size
+         ; package_source
+         ; architecture
+         ; suite
+         ; codename
+         ; depends
+         ; suggested_depends
+         ; recommended_depends
+         ; pre_depends
+         ; conflicts
+         ; replaces
+         ; provides
+         ; license
+         ; githash
+         ; buildurl }
+       in
+
        let%bind input =
          match
-           Deb_builder_lib.Builder.evaluate_and_validate_inputs ~build_dir
-             ~output_dir ~clean ~defaults_file ~package_name ~version ~vendor
-             ~package_authors ~package_maintainer ~package_description
-             ~package_section ~package_priority ~package_homepage
-             ~package_installed_size ~package_source ~architecture ~suite
-             ~codename ~depends ~suggested_depends ~recommended_depends
-             ~pre_depends ~conflicts ~replaces ~provides ~license ~githash
-             ~buildurl
+           Deb_builder_lib.Builder.evaluate_and_validate_inputs cmd_input
          with
          | Ok input ->
              return input

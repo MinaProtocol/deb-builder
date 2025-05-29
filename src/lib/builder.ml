@@ -2,6 +2,74 @@ open Core
 open Async
 open Dolog
 
+type cmd_input =
+  {
+    build_dir : string 
+    ; output_dir :string 
+    ; clean : bool
+    ; defaults_file : string option
+    ; package_name : string
+    ; version : string
+    ; depends : string option
+    ; suggested_depends : string option
+    ; recommended_depends : string option
+    ; pre_depends : string option
+    ; conflicts : string option
+    ; replaces : string option
+    ; provides : string option
+    ; vendor : string option
+    ; package_authors : string option
+    ; package_maintainer : string option
+    ; package_description : string 
+    ; package_section : string option
+    ; package_priority : string option
+    ; package_homepage : string option
+    ; package_installed_size : string option
+    ; package_source : string option
+    ; architecture : string option
+    ; suite : string
+    ; codename : string
+    ; license : string option
+    ; githash : string option
+    ; buildurl : string option
+  }
+
+let cmd_input_default ~build_dir
+      ~package_name ~package_description
+      ~version ~output_dir ~codename ~suite
+      ~defaults_file = 
+  { build_dir
+    ; output_dir
+    ; clean = false
+    ; defaults_file
+    ; package_name
+    ; version
+    ; depends = None
+    ; suggested_depends = None
+    ; recommended_depends = None
+    ; pre_depends = None
+    ; conflicts = None
+    ; replaces = None
+    ; provides = None
+    ; vendor = None
+    ; package_authors = None
+    ; package_maintainer = None
+    ; package_description
+    ; package_section = None
+    ; package_priority = None
+    ; package_homepage = None
+    ; package_installed_size = None
+    ; package_source = None
+    ; architecture = None
+    ; suite 
+    ; codename 
+    ; license = None 
+    ; githash = None 
+    ; buildurl = None 
+  }
+
+
+
 type input =
   { build_dir : string
   ; output_dir : string
@@ -47,109 +115,104 @@ let or_from_defaults_file opt default_opt ~defaults_file ~name =
   | Some value ->
       Ok value
 
-let evaluate_and_validate_inputs ~build_dir ~output_dir ?(clean = false)
-    ?defaults_file ~package_name ~version ?vendor ?package_authors
-    ?package_maintainer ~package_description ?package_section ?package_priority
-    ?package_homepage ?package_installed_size ?package_source ?architecture
-    ~suite ~codename ?depends ?suggested_depends ?recommended_depends
-    ?pre_depends ?conflicts ?replaces ?provides ?license ?githash ?buildurl () =
+let evaluate_and_validate_inputs (cmd_input:cmd_input) =
   let open Or_error.Let_syntax in
-  let%bind defaults = Defaults.load defaults_file in
+  let%bind defaults = Defaults.load cmd_input.defaults_file in
 
   let maybe_split = Option.map ~f:(String.split ~on:',') in
 
   let depends =
-    Option.merge (maybe_split depends) defaults.depends ~f:(fun a b -> a @ b)
+    Option.merge (maybe_split cmd_input.depends) defaults.depends ~f:(fun a b -> a @ b)
   in
   let suggested_depends =
-    Option.merge (maybe_split suggested_depends) defaults.suggested_depends
+    Option.merge (maybe_split cmd_input.suggested_depends) defaults.suggested_depends
       ~f:(fun a b -> a @ b )
   in
   let recommended_depends =
-    Option.merge (maybe_split recommended_depends) defaults.recommended_depends
+    Option.merge (maybe_split cmd_input.recommended_depends) defaults.recommended_depends
       ~f:(fun a b -> a @ b )
   in
   let pre_depends =
-    Option.merge (maybe_split pre_depends) defaults.pre_depends ~f:(fun a b ->
+    Option.merge (maybe_split cmd_input.pre_depends) defaults.pre_depends ~f:(fun a b ->
         a @ b )
   in
   let conflicts =
-    Option.merge (maybe_split conflicts) defaults.conflicts ~f:(fun a b ->
+    Option.merge (maybe_split cmd_input.conflicts) defaults.conflicts ~f:(fun a b ->
         a @ b )
   in
   let replaces =
-    Option.merge (maybe_split replaces) defaults.replaces ~f:(fun a b -> a @ b)
+    Option.merge (maybe_split cmd_input.replaces) defaults.replaces ~f:(fun a b -> a @ b)
   in
   let provides =
-    Option.merge (maybe_split provides) defaults.provides ~f:(fun a b -> a @ b)
+    Option.merge (maybe_split cmd_input.provides) defaults.provides ~f:(fun a b -> a @ b)
   in
 
   let%bind vendor =
-    or_from_defaults_file vendor defaults.vendor ~defaults_file ~name:"vendor"
+    or_from_defaults_file cmd_input.vendor defaults.vendor ~defaults_file:cmd_input.defaults_file ~name:"vendor"
   in
   let%bind package_authors =
-    or_from_defaults_file package_authors defaults.package_authors
-      ~defaults_file ~name:"package_authors"
+    or_from_defaults_file cmd_input.package_authors defaults.package_authors
+      ~defaults_file:cmd_input.defaults_file ~name:"package_authors"
   in
   let%bind package_maintainer =
-    or_from_defaults_file package_maintainer defaults.package_maintainer
-      ~defaults_file ~name:"package_maintainer"
+    or_from_defaults_file cmd_input.package_maintainer defaults.package_maintainer
+      ~defaults_file:cmd_input.defaults_file ~name:"package_maintainer"
   in
   let%bind package_section =
-    or_from_defaults_file package_section defaults.package_section
-      ~defaults_file ~name:"package_section"
+    or_from_defaults_file cmd_input.package_section defaults.package_section
+      ~defaults_file:cmd_input.defaults_file ~name:"package_section"
   in
   let%bind package_priority =
-    or_from_defaults_file package_priority defaults.package_priority
-      ~defaults_file ~name:"package_priority"
+    or_from_defaults_file cmd_input.package_priority defaults.package_priority
+      ~defaults_file:cmd_input.defaults_file ~name:"package_priority"
   in
   let%bind package_homepage =
-    or_from_defaults_file package_homepage defaults.package_homepage
-      ~defaults_file ~name:"package_homepage"
+    or_from_defaults_file cmd_input.package_homepage defaults.package_homepage
+     ~defaults_file:cmd_input.defaults_file ~name:"package_homepage"
   in
   let%bind package_installed_size =
-    or_from_defaults_file package_installed_size defaults.package_installed_size
-      ~defaults_file ~name:"package_installed_size"
+    or_from_defaults_file cmd_input.package_installed_size defaults.package_installed_size
+      ~defaults_file:cmd_input.defaults_file ~name:"package_installed_size"
   in
   let%bind package_source =
-    or_from_defaults_file package_source defaults.package_source ~defaults_file
+    or_from_defaults_file cmd_input.package_source defaults.package_source ~defaults_file:cmd_input.defaults_file
       ~name:"package_source"
   in
   let%bind architecture =
-    or_from_defaults_file architecture defaults.architecture ~defaults_file
+    or_from_defaults_file cmd_input.architecture defaults.architecture ~defaults_file:cmd_input.defaults_file
       ~name:"architecture"
   in
   let%bind license =
-    or_from_defaults_file license defaults.license ~defaults_file
+    or_from_defaults_file cmd_input.license defaults.license ~defaults_file:cmd_input.defaults_file
       ~name:"license"
   in
   let%bind githash =
-    or_from_defaults_file githash defaults.githash ~defaults_file
+    or_from_defaults_file cmd_input.githash defaults.githash ~defaults_file:cmd_input.defaults_file
       ~name:"githash"
   in
   let%bind buildurl =
-    or_from_defaults_file buildurl defaults.buildurl ~defaults_file
+    or_from_defaults_file cmd_input.buildurl defaults.buildurl ~defaults_file:cmd_input.defaults_file
       ~name:"buildurl"
   in
 
   return
-    { build_dir
-    ; output_dir
-    ; clean
-    ; package_name
-    ; version
+    { build_dir = cmd_input.build_dir
+    ; output_dir = cmd_input.build_dir
+    ; clean = cmd_input.clean
+    ; package_name = cmd_input.package_name
+    ; version = cmd_input.version
     ; vendor
     ; package_authors
     ; package_maintainer
-    ; package_description
+    ; package_description = cmd_input.package_description
     ; package_section
     ; package_priority
     ; package_homepage
     ; package_installed_size
     ; package_source
     ; architecture
-    ; suite
-    ; codename
+    ; suite = cmd_input.suite
+    ; codename = cmd_input.codename
     ; depends
     ; suggested_depends
     ; recommended_depends
