@@ -10,13 +10,34 @@ let Docker = Base.Plugin.Docker.Type
 
 let Size = Base.Command.Size.Type
 
+let containerImage =
+      "gcr.io/o1labs-192920/mina-toolchain@sha256:8248ceb8f35bae0b5b0474a3e296ad0380ea2ab339f353943ee36564a12a745a"
+
 in  Pipeline.build
       [ Command.build
           Command.Config::{
-          , commands = [ Cmd.run "./ci/scripts/build_and_sign.sh" ]
-          , label = "Build and Sign"
-          , key = "build-and-sign"
+          , commands = [ Cmd.run "./ci/scripts/build_app.sh" ]
+          , label = "Build"
+          , key = "build"
           , target = Size.Multi
-          , docker = Some Docker::{ image = "alpine:3.10" }
+          , docker = Some Docker::{ image = containerImage }
+          }
+      , Command.build
+          Command.Config::{
+          , commands = [ Cmd.run "./ci/scripts/build_debian.sh" ]
+          , label = "Build"
+          , key = "debian"
+          , target = Size.Multi
+          , docker = Some Docker::{
+            , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
+            }
+          }
+      , Command.build
+          Command.Config::{
+          , commands = [ Cmd.run "./ci/scripts/build_docker.sh" ]
+          , label = "Build"
+          , key = "docker"
+          , target = Size.Multi
+          , docker = None Docker.Type
           }
       ]
