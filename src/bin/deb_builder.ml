@@ -350,8 +350,16 @@ let lookup =
   Command.group ~summary:"Look up details of debian"
     [ ("sign-key", lookup_signature_key) ]
 
+let version = "0.0.1-alpha1"
+
+(* Build info can be any string that describes the build environment or
+   the builder itself. It can include information like the builder name,
+   version, or any other relevant details. *)
+
+let build_info = "Deb Builder"
+
 let () =
-  Command.run
+  Command.run ~version ~build_info
     (Command.group
        ~summary:"Generate public keys for sending batches of transactions"
        [ ("build", build)

@@ -197,7 +197,7 @@ let evaluate_and_validate_inputs (cmd_input:cmd_input) =
 
   return
     { build_dir = cmd_input.build_dir
-    ; output_dir = cmd_input.build_dir
+    ; output_dir = cmd_input.output_dir
     ; clean = cmd_input.clean
     ; package_name = cmd_input.package_name
     ; version = cmd_input.version
