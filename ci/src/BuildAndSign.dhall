@@ -21,6 +21,7 @@ in  Pipeline.build
           , key = "build"
           , target = Size.Multi
           , docker = Some Docker::{ image = containerImage }
+          , user = Some "opam"
           }
       , Command.build
           Command.Config::{
