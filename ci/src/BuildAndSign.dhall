@@ -30,6 +30,7 @@ in  Pipeline.build
           , target = Size.Multi
           , docker = Some Docker::{
             , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
+            , shell = None (List Text)
             }
           }
       , Command.build
