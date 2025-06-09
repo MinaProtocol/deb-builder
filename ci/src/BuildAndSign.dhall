@@ -17,7 +17,7 @@ in  Pipeline.build
       [ Command.build
           Command.Config::{
           , commands = [ Cmd.run "./ci/scripts/build_app.sh" ]
-          , label = "Build"
+          , label = "App"
           , key = "build"
           , target = Size.Multi
           , docker = Some Docker::{ image = containerImage }
@@ -25,7 +25,7 @@ in  Pipeline.build
       , Command.build
           Command.Config::{
           , commands = [ Cmd.run "./ci/scripts/build_debian.sh" ]
-          , label = "Build"
+          , label = "Debian Package"
           , key = "debian"
           , target = Size.Multi
           , docker = Some Docker::{
@@ -35,7 +35,7 @@ in  Pipeline.build
       , Command.build
           Command.Config::{
           , commands = [ Cmd.run "./ci/scripts/build_docker.sh" ]
-          , label = "Build"
+          , label = "Docker Image"
           , key = "docker"
           , target = Size.Multi
           , docker = None Docker.Type
