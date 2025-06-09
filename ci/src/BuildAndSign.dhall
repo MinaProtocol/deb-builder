@@ -22,7 +22,7 @@ in  Pipeline.build
           , target = Size.Multi
           , docker = Some Docker::{ 
             , image = containerImage
-            , user = Some "opam" 
+            , user = Some "root" 
             }
           }
       , Command.build
