@@ -10,6 +10,8 @@ fi
 
 eval "$(opam env)"
 
+opam install dolog
+
 dune build --profile=release src/bin/deb_builder.exe 
 
 if [ $? -ne 0 ]; then
