@@ -10,6 +10,8 @@ let Docker = Base.Plugin.Docker.Type
 
 let Size = Base.Command.Size.Type
 
+let TaggedKey = Base.Command.TaggedKey
+
 let containerImage =
       "gcr.io/o1labs-192920/mina-toolchain@sha256:8248ceb8f35bae0b5b0474a3e296ad0380ea2ab339f353943ee36564a12a745a"
 
@@ -31,7 +33,7 @@ in  Pipeline.build
           , label = "Debian Package"
           , key = "debian"
           , target = Size.Multi
-          , depends = [ "build" ]
+          , depends_on = [ TaggedKey.ofKey "build" ]
           , docker = Some Docker::{
             , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
             , shell = None (List Text)
@@ -41,7 +43,7 @@ in  Pipeline.build
           Command.Config::{
           , commands = [ Cmd.run "./ci/scripts/build_docker.sh" ]
           , label = "Docker Image"
-          , depends = [ "debian" ]
+          , depends_on = [ TaggedKey.ofKey "debian" ]
           , key = "docker"
           , target = Size.Multi
           , docker = None Docker.Type
