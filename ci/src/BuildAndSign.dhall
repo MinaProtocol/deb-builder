@@ -29,15 +29,16 @@ in  Pipeline.build
           }
       , Command.build
           Command.Config::{
-          , commands = [ Cmd.run "./ci/scripts/build_debian.sh" ]
+          , commands = [ 
+              Cmd.inDocker 
+                Docker::{
+                , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
+                }
+              (Cmd.run "./ci/scripts/build_debian.sh") ]
           , label = "Debian Package"
           , key = "debian"
           , target = Size.Multi
           , depends_on = [ TaggedKey.keyOnly "build" ]
-          , docker = Some Docker::{
-            , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
-            , shell = None (List Text)
-            }
           }
       , Command.build
           Command.Config::{
@@ -46,6 +47,5 @@ in  Pipeline.build
           , depends_on = [ TaggedKey.keyOnly "debian" ]
           , key = "docker"
           , target = Size.Multi
-          , docker = None Docker.Type
           }
       ]
