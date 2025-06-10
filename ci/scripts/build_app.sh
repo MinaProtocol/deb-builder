@@ -10,7 +10,7 @@ fi
 
 eval "$(opam env)"
 
-opam install dolog fileutils jingoo str
+opam install dolog fileutils jingoo
 
 dune build --profile=release src/bin/deb_builder.exe 
 
