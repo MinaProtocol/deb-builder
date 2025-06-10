@@ -33,7 +33,7 @@ in  Pipeline.build
           , label = "Debian Package"
           , key = "debian"
           , target = Size.Multi
-          , depends_on = [ TaggedKey.ofKey "build" ]
+          , depends_on = [ TaggedKey.keyOnly "build" ]
           , docker = Some Docker::{
             , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
             , shell = None (List Text)
@@ -43,7 +43,7 @@ in  Pipeline.build
           Command.Config::{
           , commands = [ Cmd.run "./ci/scripts/build_docker.sh" ]
           , label = "Docker Image"
-          , depends_on = [ TaggedKey.ofKey "debian" ]
+          , depends_on = [ TaggedKey.keyOnly "debian" ]
           , key = "docker"
           , target = Size.Multi
           , docker = None Docker.Type
