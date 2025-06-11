@@ -16,7 +16,7 @@ in  Pipeline.build
           Command.Config::{
           , commands =
             [ Cmd.runInDocker
-                Cmd.Docker::{ image = containerImage }
+                Cmd.Docker::{ image = containerImage, privileged = True }
                 "./ci/scripts/build_app.sh"
             , Cmd.run "./ci/scripts/build_docker.sh"
             , Cmd.runInDocker
