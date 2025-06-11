@@ -2,7 +2,7 @@ FROM debian:stable-slim
 
 # Install required dependencies (if any)
 RUN apt-get update && apt-get install -y \
-    ca-certificates \
+    ca-certificates git \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
