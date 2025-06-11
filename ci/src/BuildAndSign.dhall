@@ -6,7 +6,7 @@ let Pipeline = Base.Pipeline.Type
 
 let Command = Base.Command.Base
 
-let Docker = Base.Plugin.Docker.Type
+let DockerPlugin = Base.Plugin.Docker.Type
 
 let Size = Base.Command.Size.Type
 
@@ -22,19 +22,20 @@ in  Pipeline.build
           , label = "App"
           , key = "build"
           , target = Size.Multi
-          , docker = Some Docker::{ 
+          , docker = Some DockerPlugin::{
             , image = containerImage
-            , user = Some "root" 
+            , user = Some "root"
             }
           }
       , Command.build
           Command.Config::{
-          , commands = [ 
-              Cmd.inDocker 
-                Docker::{
+          , commands =
+            [ Cmd.runInDocker
+                Cmd.Docker::{
                 , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1"
                 }
-              (Cmd.run "./ci/scripts/build_debian.sh") ]
+                "./ci/scripts/build_debian.sh"
+            ]
           , label = "Debian Package"
           , key = "debian"
           , target = Size.Multi
