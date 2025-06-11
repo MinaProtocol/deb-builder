@@ -276,7 +276,7 @@ let build_debian_package ~(input : input) =
     let debian_output = input.output_dir ^ "/" ^ debian_name in
     let%bind process =
       Process.create ~prog:"fakeroot"
-        ~args:[ "dpkg-deb"; "--build"; input.build_dir; debian_output ]
+        ~args:[ "dpkg-deb"; "-Zgzip"; "--build"; input.build_dir; debian_output ]
         ()
     in
     let%bind.Deferred output = Process.collect_output_and_wait process in
