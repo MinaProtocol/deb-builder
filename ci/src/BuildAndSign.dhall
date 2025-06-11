@@ -17,7 +17,7 @@ in  Pipeline.build
           , commands =
             [ Cmd.runInDocker
                 Cmd.Docker::{ image = containerImage, privileged = True }
-                "./ci/scripts/build_app.sh"
+                "sudo chown -R opam . && ./ci/scripts/build_app.sh"
             , Cmd.run "./ci/scripts/build_docker.sh"
             , Cmd.runInDocker
                 Cmd.Docker::{
