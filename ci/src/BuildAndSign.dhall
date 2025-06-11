@@ -45,7 +45,7 @@ in  Pipeline.build
           Command.Config::{
           , commands = [ Cmd.run "./ci/scripts/build_docker.sh" ]
           , label = "Docker Image"
-          , depends_on = [ TaggedKey.keyOnly "debian" ]
+          , depends_on = [ TaggedKey.keyOnly "build" ]
           , key = "docker"
           , target = Size.Multi
           }
