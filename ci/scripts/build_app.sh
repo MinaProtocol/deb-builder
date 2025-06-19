@@ -14,6 +14,8 @@ opam install dolog fileutils jingoo
 
 dune build --profile=release src/bin/deb_builder.exe 
 
+ls -all
+
 if [ $? -ne 0 ]; then
   echo "Build failed."
   exit 1
