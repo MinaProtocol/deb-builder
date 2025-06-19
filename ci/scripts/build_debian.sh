@@ -11,7 +11,7 @@ mkdir -p ./build_dir
 
 ls -all
 
-cp _build/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
+cp _build/default/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
 
 mina-debian-builder build --defaults ./ci/res/defaults.json --debian "./build_dir" --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION}
 
