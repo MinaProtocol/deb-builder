@@ -18,7 +18,7 @@ function export_git_env_vars() {
     fi
     export GIT_TAG
     export GIT_COMMIT
-    export VERSION="${GIT_TAG}_${GIT_COMMIT}"
+    export VERSION="${GIT_TAG}-${GIT_COMMIT}"
     echo "Exported GIT_COMMIT: $GIT_COMMIT"
     echo "Exported GIT_TAG: $GIT_TAG"
     echo "Exported VERSION: $VERSION"
