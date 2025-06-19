@@ -13,7 +13,7 @@ in  Command.build
       , commands =
         [ Cmd.runInDocker
             Cmd.Docker::{ image = Images.containerImage, privileged = True }
-            "sudo chown -R opam . && ./ci/scripts/test_app.sh"
+            "./ci/scripts/test_app.sh"
         ]
       , label = "Test"
       , key = "test"
