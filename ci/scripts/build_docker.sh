@@ -11,3 +11,5 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 echo "Docker image build succeeded."
+
+docker push "minaprotocol/mina-debian-builder:${VERSION}"
