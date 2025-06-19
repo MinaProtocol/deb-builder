@@ -36,4 +36,9 @@ echo "Debian package build succeeded."
 
 mina-debian-builder sign --deb ./debian/mina-debian-builder_${VERSION}.deb --key "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3"
 
+if [ $? -ne 0 ]; then
+  echo "Debian package signing failed."
+  exit 1
+fi
 
+echo "Debian package signing succeeded."
