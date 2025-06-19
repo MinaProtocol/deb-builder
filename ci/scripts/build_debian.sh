@@ -8,6 +8,9 @@ source "$(dirname "$0")/helpers.sh"
 export_git_env_vars
 
 mkdir -p ./build_dir
+
+ls -all
+
 cp _build/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
 
 mina-debian-builder build --defaults ./ci/res/defaults.json --debian "./build_dir" --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION}
