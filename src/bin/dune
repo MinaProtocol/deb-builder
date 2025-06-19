@@ -4,6 +4,7 @@
  (libraries
   ;; opam library
   core
+  core_unix.command_unix
   async
   ;; local library
   deb_builder_lib)

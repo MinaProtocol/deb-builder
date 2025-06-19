@@ -1,4 +1,3 @@
-open Core
 open Async
 open Dolog
 
@@ -110,7 +109,7 @@ let build =
      fun () ->
        Log.set_log_level Log.DEBUG ;
 
-       Log.set_output stdout ;
+       Log.set_output Stdlib.stdout ;
        Log.info "Building debian package for %s...\n" package_name ;
        let open Deferred.Let_syntax in
        let cmd_input: Deb_builder_lib.Builder.cmd_input =
@@ -151,7 +150,7 @@ let build =
          | Ok input ->
              return input
          | Error err ->
-             Log.error "Validation phase failed: %s\n" (Error.to_string_hum err) ;
+             Log.error "Validation phase failed: %s\n" (Core.Error.to_string_hum err) ;
              exit 1
        in
        match%bind Deb_builder_lib.Builder.build_debian_package ~input with
@@ -160,7 +159,7 @@ let build =
            return ()
        | Error err ->
            Log.error "Building debian package failed: %s\n"
-             (Error.to_string_hum err) ;
+             (Core.Error.to_string_hum err) ;
            exit 1 )
 
 let verify_content =
@@ -253,7 +252,7 @@ let verify_content =
      fun () ->
        Log.set_log_level Log.DEBUG ;
 
-       Log.set_output stdout ;
+       Log.set_output Stdlib.stdout ;
        Log.info "Verifying debian package %s...\n" deb ;
        let open Deferred.Let_syntax in
        match%bind
@@ -269,7 +268,7 @@ let verify_content =
            return ()
        | Error err ->
            Log.error "Verification failed due to : %s\n"
-             (Error.to_string_hum err) ;
+             (Core.Error.to_string_hum err) ;
            exit 1 )
 
 let sign =
@@ -287,7 +286,7 @@ let sign =
      in
      fun () ->
        Log.set_log_level Log.DEBUG ;
-       Log.set_output stdout ;
+       Log.set_output Stdlib.stdout ;
        let open Deferred.Let_syntax in
        match%bind
          Deb_builder_lib.Signer.sign ~debian_package_to_sign ~signing_key_id
@@ -296,7 +295,7 @@ let sign =
            return ()
        | Error err ->
            Async.eprintf "Signing failed due to : %s\n"
-             (Error.to_string_hum err) ;
+             (Core.Error.to_string_hum err) ;
            exit 1 )
 
 let verify_signature =
@@ -310,7 +309,7 @@ let verify_signature =
      in
      fun () ->
        Log.set_log_level Log.DEBUG ;
-       Log.set_output stdout ;
+       Log.set_output Stdlib.stdout ;
        let open Deferred.Let_syntax in
        match%bind
          Deb_builder_lib.Signature_verifier.verify ~debian_package_to_verify
@@ -321,7 +320,7 @@ let verify_signature =
            return ()
        | Error err ->
            Async.eprintf "Signature verification failed due to : %s\n"
-             (Error.to_string_hum err) ;
+             (Core.Error.to_string_hum err) ;
            exit 1 )
 
 let lookup_signature_key =
@@ -331,7 +330,7 @@ let lookup_signature_key =
 
      fun () ->
        Log.set_log_level Log.DEBUG ;
-       Log.set_output stdout ;
+       Log.set_output Stdlib.stdout ;
        let open Deferred.Let_syntax in
        match%bind Deb_builder_lib.Viewer.signature debian_package_to_view with
        | Ok signature ->
@@ -339,7 +338,7 @@ let lookup_signature_key =
            return ()
        | Error err ->
            Async.eprintf "Signature lookup failed due to : %s\n"
-             (Error.to_string_hum err) ;
+             (Core.Error.to_string_hum err) ;
            exit 1 )
 
 let verify =
@@ -359,7 +358,7 @@ let version = "0.0.1-alpha1"
 let build_info = "Deb Builder"
 
 let () =
-  Command.run ~version ~build_info
+  Command_unix.run ~version ~build_info
     (Command.group
        ~summary:"Generate public keys for sending batches of transactions"
        [ ("build", build)

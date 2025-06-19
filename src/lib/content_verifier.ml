@@ -209,9 +209,9 @@ let verify ~deb ~defaults_file ~vendor ~package_authors ~package_maintainer
       ~(name : string) =
     match expected with
     | Some expected ->
-        let expected_set = String.Set.of_list expected in
-        let actual_set = String.Set.of_list actual in
-        let missing = String.Set.diff expected_set actual_set in
+        let expected_set = Set.of_list (module String) expected in
+        let actual_set = Set.of_list (module String) actual in
+        let missing = Set.diff expected_set actual_set in
         if Set.is_empty missing then Ok ()
         else
           Or_error.errorf "%s mismatch. Missing: %s" name

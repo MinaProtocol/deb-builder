@@ -56,7 +56,7 @@ let verify ~debian_package_to_verify ~(public_key_file : string option) =
   let%bind () = check_command_exists "curl" in
   let%bind () = check_file_exists debian_package_to_verify in
 
-  let temp_dir = Filename.temp_dir "debsig_verify" "" in
+  let temp_dir = Filename_unix.temp_dir "debsig_verify" "" in
   let%bind key_id = Viewer.signature debian_package_to_verify in
   let dest_key = build_verification_resources ~temp_dir ~key_id in
 

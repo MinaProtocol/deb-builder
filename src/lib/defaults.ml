@@ -50,7 +50,7 @@ let load = function
         ; buildurl = None
         }
   | Some file -> (
-      match Core.Sys.file_exists file with
+      match Sys_unix.file_exists file with
       | `Yes -> (
           let () = Log.info "Loading defaults from %s ...\n" file in
           match Yojson.Safe.from_file file |> of_yojson with
