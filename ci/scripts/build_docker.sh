@@ -4,7 +4,7 @@ set -euox pipefail
 source "$(dirname "$0")/helpers.sh"
 export_git_env_vars
 
-docker build . -t "mina-debian-builder:${VERSION}" -f Dockerfile
+docker build . -t "minaprotocol/mina-debian-builder:${VERSION}" -f Dockerfile
 
 if [ $? -ne 0 ]; then
   echo "Docker image build failed."
