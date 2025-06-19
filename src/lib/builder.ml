@@ -264,7 +264,7 @@ let build_debian_package ~(input : input) =
     let control_file_dir = FilePath.concat input.build_dir "DEBIAN" in
     let control_file = FilePath.concat control_file_dir "control" in
 
-    let%bind.Deferred () = Unix.mkdir ~p:() control_file in
+    let%bind.Deferred () = Unix.mkdir ~p:() control_file_dir in
     Out_channel.write_all control_file ~data:result ;
 
     Log.info "Building debian package..." ;
