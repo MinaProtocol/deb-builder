@@ -12,4 +12,10 @@ if [ $? -ne 0 ]; then
 fi
 echo "Docker image build succeeded."
 
+
+if ! is_commit_tagged; then
+  echo "The current commit is not tagged. Skipping Docker push."
+  exit 0
+fi
+
 docker push "minaprotocol/mina-debian-builder:${VERSION}"

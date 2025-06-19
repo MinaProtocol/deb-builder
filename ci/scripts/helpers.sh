@@ -1,5 +1,15 @@
 #!/bin/bash
 
+function is_commit_tagged() {
+    local commit_hash
+    commit_hash=$(git rev-parse HEAD)
+    if git tag --points-at "$commit_hash" | grep -q .; then
+        echo 0
+    else
+        echo 1
+    fi
+}
+
 function export_git_env_vars() {
     git fetch --tags --quiet
     if [ $? -ne 0 ]; then
