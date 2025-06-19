@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+git config --global --add safe.directory /workdir
+
 source "$(dirname "$0")/helpers.sh"
 export_git_env_vars
 
