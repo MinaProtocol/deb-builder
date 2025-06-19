@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 function is_commit_tagged() {
     local commit_hash
     commit_hash=$(git rev-parse HEAD)
@@ -11,7 +13,7 @@ function is_commit_tagged() {
 }
 
 function export_git_env_vars() {
-    git fetch --tags --quiet
+    git fetch --tags
     if [ $? -ne 0 ]; then
         echo "Failed to fetch Git tags. Ensure you are in a valid Git repository."
         exit 1
