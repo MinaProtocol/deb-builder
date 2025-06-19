@@ -34,6 +34,8 @@ fi
 
 echo "Debian package build succeeded."
 
+ls -all ./debian
+
 mina-debian-builder sign --deb ./debian/mina-debian-builder_${VERSION}_amd64.deb --key "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3"
 
 
