@@ -12,7 +12,7 @@ build:
 	$(OCAMLBUILD) build $(BIN_DIR)/$(APP_NAME).exe
 
 test:
-	cd src/test && $(OCAMLBUILD) test $(TEST_DIR) || cd ../../
+	cd $(TEST_DIR) && $(OCAMLBUILD) test || cd ../../
 
 run: build
 	./$(BUILD_DIR)/$(BIN_DIR)/$(APP_NAME).exe
