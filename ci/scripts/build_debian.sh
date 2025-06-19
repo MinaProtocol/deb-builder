@@ -13,7 +13,7 @@ ls -all
 
 cp _build/default/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
 
-mina-debian-builder build --defaults ./ci/res/defaults.json --description "utility for building debian" --debian "./build_dir" --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION}
+mina-debian-builder build --defaults ./ci/res/defaults.json --description "utility for building debian" --debian "./build_dir" --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION} --suite "unstable"
 
 if [ $? -ne 0 ]; then
   echo "Debian package build failed."
