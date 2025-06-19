@@ -4,7 +4,10 @@
 
 set -euox pipefail
 
-sudo chown -R opam . && su - opam 
+# This is necessary to ensure that the script can run in a CI environment
+sudo chown -R opam:opam /home/opam/.gnupg
+sudo chmod 700 /home/opam/.gnupg
+sudo chmod 600 /home/opam/.gnupg/*
 
 # This script builds the application using opam and dune.
 # Ensure that the script is run from the root of the repository
