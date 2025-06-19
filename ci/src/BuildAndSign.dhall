@@ -23,7 +23,7 @@ in  Pipeline.build
             , Cmd.run "./ci/scripts/build_docker.sh"
             , Cmd.runInDocker
                 Cmd.Docker::{
-                , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1_7344965"
+                , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1-7344965"
                 }
                 "./ci/scripts/build_debian.sh"
             ]
