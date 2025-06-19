@@ -10,12 +10,12 @@
         ocaml-ng = prev.ocaml-ng // {
           ocamlPackages_4_14 = prev.ocaml-ng.ocamlPackages_4_14.overrideScope' (oself: osuper: {
             dune = osuper.dune_3.overrideAttrs (old: {
-              version = "3.8.0";
+              version = "3.11.0";
               src = prev.fetchFromGitHub {
                 owner = "ocaml";
                 repo = "dune";
-                rev = "3.8.0";
-                sha256 = "<replace-with-correct-hash>";
+                rev = "3.11.0";
+                sha256 = "sha256-7jKzjXjvRSt/QD5Ep5ZoJKILTo7uC9/KaCDsa2VDMyE=";
               };
             });
           });
