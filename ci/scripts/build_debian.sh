@@ -13,7 +13,19 @@ ls -all
 
 cp _build/default/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
 
-mina-debian-builder build --defaults ./ci/res/defaults.json --description "utility for building debian" --debian "./build_dir" --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION} --suite "unstable" --githash "$GIT_COMMIT"
+BUILD_URL=${BUILD_URL:-${BUILDKITE_BUILD_URL:-"local build from '$(hostname)' host"}}
+
+mina-debian-builder build --defaults ./ci/res/defaults.json \
+    --description "utility for building debian" \
+    --debian "./build_dir" \
+    --output ./debian/ \
+    --arch amd64 \
+    --codename bullseye \
+    --package-name mina-debian-builder \
+    --version ${VERSION} \
+    --suite "unstable" \
+    --githash "$GIT_COMMIT" \
+    --buildurl "$BUILD_URL"
 
 if [ $? -ne 0 ]; then
   echo "Debian package build failed."
