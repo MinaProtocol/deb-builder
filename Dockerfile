@@ -2,7 +2,7 @@ FROM debian:stable-slim
 
 # Install required dependencies (if any)
 RUN apt-get update && apt-get install -y \
-    ca-certificates git \
+    ca-certificates git fakeroot \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the deb_builder executable
