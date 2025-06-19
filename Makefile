@@ -11,8 +11,8 @@ APP_NAME=deb_builder
 build:
 	$(OCAMLBUILD) build $(BIN_DIR)/$(APP_NAME).exe
 
-test: build
-	$(OCAMLBUILD) test $(TEST_DIR)
+test:
+	cd src/test && $(OCAMLBUILD) test $(TEST_DIR) || cd ../../
 
 run: build
 	./$(BUILD_DIR)/$(BIN_DIR)/$(APP_NAME).exe
