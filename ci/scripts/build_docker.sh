@@ -12,4 +12,4 @@ if [ $? -ne 0 ]; then
 fi
 echo "Docker image build succeeded."
 
-docker push "mina-debian-builder:${VERSION}"
+docker push "minaprotocol/mina-debian-builder:${VERSION}"
