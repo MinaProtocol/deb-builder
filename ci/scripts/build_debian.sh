@@ -7,7 +7,10 @@ git config --global --add safe.directory /workdir
 source "$(dirname "$0")/helpers.sh"
 export_git_env_vars
 
-mina-debian-builder build --defaults ./ci/res/defaults.json --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION}
+mkdir -p ./build_dir
+cp _build/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
+
+mina-debian-builder build --defaults ./ci/res/defaults.json --debian "./build_dir" --output ./debian/ --arch amd64 --codename bullseye --package-name mina-debian-builder --version ${VERSION}
 
 if [ $? -ne 0 ]; then
   echo "Debian package build failed."
