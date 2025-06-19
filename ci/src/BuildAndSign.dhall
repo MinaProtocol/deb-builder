@@ -4,6 +4,8 @@ let Cmd = Base.Lib.Cmds
 
 let Pipeline = Base.Pipeline.Type
 
+let DockerLogin = Base.Plugin.DockerLogin.Type
+
 let Command = Base.Command.Base
 
 let Size = Base.Command.Size.Type
@@ -28,5 +30,6 @@ in  Pipeline.build
           , label = "App"
           , key = "build"
           , target = Size.Multi
+          , docker_login = Some DockerLogin::{=}
           }
       ]
