@@ -12,4 +12,6 @@ if [ $? -ne 0 ]; then
 fi
 echo "Docker image build succeeded."
 
+docker info | grep Username
+
 docker push "minaprotocol/mina-debian-builder:${VERSION}"
