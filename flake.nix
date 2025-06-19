@@ -1,39 +1,38 @@
 {
-  description = "Dev shell for Mina with OCaml 4.02.3 and Dune 3.1";
+  description = "Dev shell with OCaml 4.14.2 and Dune 3.3.1";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-22.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-23.05";
 
   outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
-      ocamlPackages = pkgs.ocaml-ng.ocamlPackages_4_02;
+      ocamlPackages = pkgs.ocaml-ng.ocamlPackages_4_14;
       dune = ocamlPackages.dune_3.overrideAttrs (old: {
-        version = "3.1.0";
+        version = "3.3.1";
         src = pkgs.fetchFromGitHub {
           owner = "ocaml";
           repo = "dune";
-          rev = "3.1.0";
-          sha256 = "sha256-cfSeH7Ej6rGXOPFtjyK0tK6cmuT4Xt1rS4Q8IMkhwBs="; # Update if needed
+          rev = "3.3.1";
+          sha256 = "sha256-k5+MLyDAU8uQjq4cKjsyk7u06e/GyGS5gxqR3MCsVwA="; # Replace if hash mismatch
         };
       });
-      minaDeps = [
+      devDeps = [
         ocamlPackages.ocaml
         dune
         ocamlPackages.findlib
         ocamlPackages.dolog 
         ocamlPackages.fileutils 
         ocamlPackages.jingoo
-        # Add any additional dependencies below as needed:
+        # Add your additional OCaml dependencies below:
         # ocamlPackages.core
         # ocamlPackages.async
-        # etc.
       ];
     in {
-      devShells."x86_64-linux" = pkgs.mkShell {
-        buildInputs = minaDeps;
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = devDeps;
         shellHook = ''
-          echo "Welcome to the Mina dev shell (OCaml 4.02.3 + Dune 3.1)"
+          echo "OCaml: $(ocamlc -version), Dune: $(dune --version)"
         '';
       };
     };
