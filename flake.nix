@@ -1,46 +1,52 @@
 {
-  description = "OCaml 4.14.2 + Dune 3.8.0 + deps dev shell";
+  description = "OCaml 4.14.2 + Dune 3.15.3 + Jane Street/ppx dev shell (global Dune override)";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
 
-  outputs = { self, nixpkgs }: 
+  outputs = { self, nixpkgs }:
     let
       system = "x86_64-linux";
       overlay = final: prev: {
+        dune_3 = prev.dune_3.overrideAttrs (old: {
+          version = "3.15.3";
+          src = prev.fetchFromGitHub {
+            owner = "ocaml";
+            repo = "dune";
+            rev = "3.15.3";
+            sha256 = "sha256-iM5sfmX/5BaefESrFy9gXabVTg03n4nXne2haR0ZDy4=";
+          };
+        });
+        dune = final.dune_3; # ensure top-level dune points to dune_3
+
         ocaml-ng = prev.ocaml-ng // {
           ocamlPackages_4_14 = prev.ocaml-ng.ocamlPackages_4_14.overrideScope' (oself: osuper: {
-            dune = osuper.dune_3.overrideAttrs (old: {
-              version = "3.11.0";
-              src = prev.fetchFromGitHub {
-                owner = "ocaml";
-                repo = "dune";
-                rev = "3.11.0";
-                sha256 = "sha256-7jKzjXjvRSt/QD5Ep5ZoJKILTo7uC9/KaCDsa2VDMyE=";
-              };
-            });
+            dune_3 = final.dune_3;
+            dune = final.dune_3;
           });
         };
       };
       pkgs = import nixpkgs { inherit system; overlays = [ overlay ]; };
       ocamlPackages = pkgs.ocaml-ng.ocamlPackages_4_14;
     in
-      {
-        devShells.${system}.default = pkgs.mkShell {
-          buildInputs = [
-            ocamlPackages.ocaml
-            ocamlPackages.dune
-            ocamlPackages.core
-            ocamlPackages.async
-            ocamlPackages.dolog
-            ocamlPackages.fileutils
-            ocamlPackages.jingoo
-            ocamlPackages.ppx_jane
-            ocamlPackages.findlib
-          ];
-          shellHook = ''
-            echo "OCaml: $(ocamlc -version)"
-            echo "Dune: $(dune --version)"
-          '';
-        };
+    {
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = [
+          ocamlPackages.ocaml
+          ocamlPackages.dune
+          ocamlPackages.core
+          ocamlPackages.async
+          ocamlPackages.dolog
+          ocamlPackages.fileutils
+          ocamlPackages.jingoo
+          ocamlPackages.ppx_jane
+          ocamlPackages.findlib
+          ocamlPackages.yojson
+          ocamlPackages.ppx_deriving_yojson
+        ];
+        shellHook = ''
+          echo "OCaml: $(ocamlc -version)"
+          echo "Dune: $(dune --version)"
+        '';
       };
+    };
 }
