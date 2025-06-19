@@ -8,12 +8,10 @@ APP_NAME=deb_builder
 
 .PHONY: all clean build run
 
-all: build
-
 build:
 	$(OCAMLBUILD) build $(BIN_DIR)/$(APP_NAME).exe
 
-test:
+test: build
 	$(OCAMLBUILD) test $(TEST_DIR)
 
 run: build

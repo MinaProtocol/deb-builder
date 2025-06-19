@@ -10,26 +10,34 @@ let Command = Base.Command.Base
 
 let Size = Base.Command.Size.Type
 
-let containerImage =
-      "gcr.io/o1labs-192920/mina-toolchain@sha256:8248ceb8f35bae0b5b0474a3e296ad0380ea2ab339f353943ee36564a12a745a"
+let Images = ./Images.dhall
 
 in  Pipeline.build
       [ Command.build
           Command.Config::{
           , commands =
             [ Cmd.runInDocker
-                Cmd.Docker::{ image = containerImage, privileged = True }
+                Cmd.Docker::{ image = Images.containerImage, privileged = True }
                 "sudo chown -R opam . && ./ci/scripts/build_app.sh"
             , Cmd.run "./ci/scripts/build_docker.sh"
             , Cmd.runInDocker
-                Cmd.Docker::{
-                , image = "minaprotocol/mina-debian-builder:0.0.1-alpha1-7344965"
-                }
+                Cmd.Docker::{ image = Images.debianBuilderImage }
                 "./ci/scripts/build_debian.sh"
             ]
-          , label = "App"
+          , label = "Build: Docker and Debian"
           , key = "build"
           , target = Size.Multi
           , docker_login = Some DockerLogin::{=}
+          }
+      , Command.build
+          Command.Config::{
+          , commands =
+            [ Cmd.runInDocker
+                Cmd.Docker::{ image = Images.containerImage, privileged = True }
+                "sudo chown -R opam . && ./ci/scripts/test_app.sh"
+            ]
+          , label = "Test"
+          , key = "test"
+          , target = Size.Multi
           }
       ]
