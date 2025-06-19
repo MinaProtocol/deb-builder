@@ -9,13 +9,18 @@ let import_key path expected_key_id =
         [ "--import"; "--import-options"; "import-show"; "--with-colons"; path ]
       ()
   in
+  Async.printf "GPG output: %s\n%!" output ;
+  
+  (* Extract the key ID from the GPG output *)
+  (* The regex matches the line with the key ID in the GPG output *)
+  (* Example line: sec:u:3072:1:40C7DD112EDB4CA9:... *)
   let regex = Re2.create_exn "sec:u:3072:1:(\\w+):.*" in
   let key_id =
     match Re2.find_submatches regex output with
     | Ok [| _; Some id |] ->
         id
     | _ ->
-        failwith "Failed to extract key ID from GPG output"
+        failwith "Failed to extract key ID from GPG output. "
   in
   Alcotest.(check string) "Key ID" key_id expected_key_id ;
   return key_id
