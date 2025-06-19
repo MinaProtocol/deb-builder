@@ -10,11 +10,7 @@ let Images = ../Images.dhall
 
 in  Command.build
       Command.Config::{
-      , commands =
-        [ Cmd.runInDocker
-            Cmd.Docker::{ image = Images.containerImage, privileged = True }
-            "sudo chown -R opam . && cd ci && make all"
-        ]
+      , commands = [ Cmd.run "cd ci && make all" ]
       , label = "Lints: Dhall"
       , key = "lints-dhall"
       , target = Size.Multi
