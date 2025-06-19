@@ -1,8 +1,10 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euox pipefail
 
 git config --global --add safe.directory /workdir
+
+gpg --import /var/secrets/debian/key.gpg
 
 source "$(dirname "$0")/helpers.sh"
 export_git_env_vars
