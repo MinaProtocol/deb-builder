@@ -9,8 +9,6 @@ export_git_env_vars
 
 mkdir -p ./build_dir
 
-ls -all
-
 cp _build/default/src/bin/deb_builder.exe ./build_dir/mina-debian-builder
 
 BUILD_URL=${BUILD_URL:-${BUILDKITE_BUILD_URL:-"local build from '$(hostname)' host"}}
@@ -34,8 +32,6 @@ fi
 
 echo "Debian package build succeeded."
 
-ls -all ./debian
-
-mina-debian-builder sign --deb ./debian/mina-debian-builder_${VERSION}_amd64.deb --key "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3"
+mina-debian-builder sign --deb ./debian/mina-debian-builder_${VERSION}.deb --key "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3"
 
 
