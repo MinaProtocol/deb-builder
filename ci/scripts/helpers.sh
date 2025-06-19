@@ -13,6 +13,7 @@ function is_commit_tagged() {
 }
 
 function export_git_env_vars() {
+    git tag -l | xargs git tag -d  # Clean up any local tags to avoid conflicts
     git fetch --tags
     if [ $? -ne 0 ]; then
         echo "Failed to fetch Git tags. Ensure you are in a valid Git repository."
