@@ -1,5 +1,5 @@
 {
-  description = "OCaml 4.14.2 + Dune 3.15.3 + Jane Street/ppx dev shell (global Dune override)";
+  description = "mina deb builder dev shell";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
 
@@ -8,11 +8,11 @@
       system = "x86_64-linux";
       overlay = final: prev: {
         dune_3 = prev.dune_3.overrideAttrs (old: {
-          version = "3.15.3";
+          version = "3.19.1";
           src = prev.fetchFromGitHub {
             owner = "ocaml";
             repo = "dune";
-            rev = "3.15.3";
+            rev = "3.19.1";
             sha256 = "sha256-iM5sfmX/5BaefESrFy9gXabVTg03n4nXne2haR0ZDy4=";
           };
         });
@@ -43,10 +43,6 @@
           ocamlPackages.yojson
           ocamlPackages.ppx_deriving_yojson
         ];
-        shellHook = ''
-          echo "OCaml: $(ocamlc -version)"
-          echo "Dune: $(dune --version)"
-        '';
       };
     };
 }
