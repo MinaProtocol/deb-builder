@@ -4,11 +4,6 @@
 
 set -euox pipefail
 
-# This is necessary to ensure that the script can run in a CI environment
-sudo chown -R opam:opam /home/opam/.gnupg
-sudo chmod 700 /home/opam/.gnupg
-sudo chmod 600 /home/opam/.gnupg/*
-sudo chown -R opam .
 
 # This script builds the application using opam and dune.
 # Ensure that the script is run from the root of the repository
@@ -19,7 +14,7 @@ fi
 
 eval "$(opam env)"
 
-opam install dolog fileutils jingoo
+opam switch import opam.export
 
 make test
 
