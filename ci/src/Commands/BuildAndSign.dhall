@@ -18,7 +18,7 @@ in  Command.build
             "./ci/scripts/build_app.sh"
         , Cmd.run "./ci/scripts/build_docker.sh"
         , Cmd.runInDocker
-            Cmd.Docker::{ image = Images.debianBuilderImage }
+            Cmd.Docker::{ image = Images.debianBuilderImage, privileged = True }
             "./ci/scripts/build_debian.sh"
         ]
       , label = "Build: Docker and Debian"
