@@ -5,6 +5,8 @@
 set -euox pipefail
 
 
+sudo chown -R opam:opam /workdir
+
 # This script builds the application using opam and dune.
 # Ensure that the script is run from the root of the repository
 if [ ! -f "dune-project" ]; then

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo chown -R opam:opam /workdir
+
 set -euox pipefail
 # This script builds the application using opam and dune.
 # Ensure that the script is run from the root of the repository
