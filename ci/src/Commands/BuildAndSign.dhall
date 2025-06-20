@@ -15,7 +15,7 @@ in  Command.build
       , commands =
         [ Cmd.runInDocker
             Cmd.Docker::{ image = Images.containerImage, privileged = True }
-            "sudo chown -R opam . && ./ci/scripts/build_app.sh"
+            "./ci/scripts/build_app.sh"
         , Cmd.run "./ci/scripts/build_docker.sh"
         , Cmd.runInDocker
             Cmd.Docker::{ image = Images.debianBuilderImage }
