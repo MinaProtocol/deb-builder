@@ -42,6 +42,7 @@
           ocamlPackages.findlib
           ocamlPackages.yojson
           ocamlPackages.ppx_deriving_yojson
+          ocamlPackages.re2
         ];
       };
     };
