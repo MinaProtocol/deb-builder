@@ -18,8 +18,7 @@ eval "$(opam env)"
 
 make dependencies
 
-make make test
-
+make test
 
 if [ $? -ne 0 ]; then
   echo "Test failed."
