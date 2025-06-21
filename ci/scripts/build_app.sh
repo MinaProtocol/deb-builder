@@ -12,9 +12,9 @@ fi
 
 eval "$(opam env)"
 
-opam switch import opam.export
+make dependencies
 
-dune build --profile=release src/bin/deb_builder.exe 
+make build-release
 
 if [ $? -ne 0 ]; then
   echo "Build failed."

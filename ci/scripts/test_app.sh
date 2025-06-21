@@ -16,9 +16,10 @@ fi
 
 eval "$(opam env)"
 
-opam switch import opam.export
+make dependencies
 
-make test
+make make test
+
 
 if [ $? -ne 0 ]; then
   echo "Test failed."
