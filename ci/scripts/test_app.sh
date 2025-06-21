@@ -17,6 +17,8 @@ make test-dependencies
 
 make test
 
+cat "/workdir/_build/default/src/test/_build/_tests/Test Suite/'Build And Sign.000.output'"
+
 if [ $? -ne 0 ]; then
   echo "Test failed."
   exit 1
