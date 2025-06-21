@@ -1,9 +1,6 @@
 #!/bin/bash
 
-
-
 set -euox pipefail
-
 
 sudo chown -R opam:opam /workdir
 
@@ -16,7 +13,7 @@ fi
 
 eval "$(opam env)"
 
-make dependencies
+make test-dependencies
 
 make test
 

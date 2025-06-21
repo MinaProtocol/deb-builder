@@ -15,7 +15,10 @@ build-release:
 	$(OCAMLBUILD) build --profile=release $(BIN_DIR)/$(APP_NAME).exe
 
 dependencies:
-	opam install dune core async dolog fileutils jingoo ppx_jane ocamlfind yojson ppx_deriving_yojson re2
+	opam install dune core async dolog fileutils jingoo ppx_jane ocamlfind yojson ppx_deriving_yojson
+
+test-dependencies: dependencies
+	opam install re2 alcotest-async
 
 test:
 	cd $(TEST_DIR) && $(OCAMLBUILD) test
