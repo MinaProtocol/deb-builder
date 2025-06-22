@@ -9,8 +9,6 @@ let import_key path expected_key_id =
         [ "--import"; "--import-options"; "import-show"; "--with-colons"; path ]
       ()
   in
-  Async.printf "GPG output: %s\n%!" output ;
-  
   (* Extract the key ID from the GPG output *)
   (* The regex matches the line with the key ID in the GPG output *)
   (* Example line: sec:u:3072:1:40C7DD112EDB4CA9:... *)
@@ -20,7 +18,7 @@ let import_key path expected_key_id =
     | Ok [| _; Some id |] ->
         id
     | _ ->
-        failwith "Failed to extract key ID from GPG output. "
+        failwithf "Failed to extract key ID from GPG output. GPG output: %s\n%!" output ()
   in
   Alcotest.(check string) "Key ID" key_id expected_key_id ;
   return key_id
@@ -66,10 +64,9 @@ let end_to_end_build_and_sign () =
   return ()
 
 let () =
-  
       run "Test Suite"
         [ ( "Build And Sign"
           , [ test_case "Build debian and verify signature" `Quick
                (fun () -> Async.Thread_safe.block_on_async_exn (fun () -> end_to_end_build_and_sign ()))
             ] )
-        ] 
+        ]
