@@ -1,4 +1,4 @@
-open Alcotest_async
+open Alcotest
 open Core
 open Async
 
@@ -66,10 +66,10 @@ let end_to_end_build_and_sign () =
   return ()
 
 let () =
-  Async.Thread_safe.block_on_async_exn (fun () ->
+  
       run "Test Suite"
         [ ( "Build And Sign"
           , [ test_case "Build debian and verify signature" `Quick
-                end_to_end_build_and_sign
+               (fun () -> Async.Thread_safe.block_on_async_exn (fun () -> end_to_end_build_and_sign ()))
             ] )
-        ] )
+        ] 

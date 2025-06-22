@@ -43,6 +43,7 @@
           ocamlPackages.yojson
           ocamlPackages.ppx_deriving_yojson
           ocamlPackages.re2
+          ocamlPackages.alcotest
         ];
       };
     };
