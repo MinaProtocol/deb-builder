@@ -9,7 +9,7 @@ homepage: "https://github.com/minaprotocol/deb-builder"
 bug-reports: "https://github.com/minaprotocol/deb-builder/issues"
 depends: [
   "ocaml"
-  "dune" {>= "3.16"}
+  "dune" {>= "3.1"}
   "core"
   "odoc" {with-doc}
 ]
