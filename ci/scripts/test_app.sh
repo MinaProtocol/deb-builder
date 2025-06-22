@@ -11,13 +11,15 @@ if [ ! -f "dune-project" ]; then
   exit 1
 fi
 
+sudo apt-get update
+sudo apt-get install -y ca-certificates git fakeroot debsigs
+sudo rm -rf /var/lib/apt/lists/*
+
 eval "$(opam env)"
 
 make test-dependencies
 
 make test
-
-cat "/workdir/_build/default/src/test/_build/_tests/Test Suite/'Build And Sign.000.output'"
 
 if [ $? -ne 0 ]; then
   echo "Test failed."
