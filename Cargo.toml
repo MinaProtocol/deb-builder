@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Mina Protocol Team"]
 description = "Build, sign, verify, and inspect Debian packages"
 license = "Apache-2.0"
-repository = "https://github.com/MinaProtocol/deb-builder"
+repository = "https://github.com/MinaProtocol/deb-toolkit"
 
 [[bin]]
 name = "deb-toolkit"
