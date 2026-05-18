@@ -73,21 +73,29 @@ fn parse_keyid_with_gpg(sig: &[u8], debug: bool) -> Result<String> {
         log::info!("gpg --list-packets stderr:\n{}", stderr);
     }
 
-    // gpg --list-packets prints (among other lines):
-    //     :signature packet: algo 1, keyid 40C7DD112EDB4CA9
-    // Match the keyid token; uppercase the captured value so the
-    // returned id is always canonical.
+    extract_keyid(&stdout).ok_or_else(|| {
+        anyhow!(
+            "Failed to extract key id from gpg --list-packets output.\n\
+             stdout: {}\n\
+             stderr: {}",
+            stdout.trim(),
+            stderr.trim()
+        )
+    })
+}
+
+/// Pull the issuer key id out of a `gpg --list-packets` stdout dump.
+/// Looks for the `keyid <HEX>` token that gpg embeds in signature
+/// packet lines, e.g.
+///
+///     :signature packet: algo 1, keyid 40C7DD112EDB4CA9
+///
+/// The returned id is always uppercase. Returns `None` when no
+/// `keyid` token appears in the input.
+fn extract_keyid(text: &str) -> Option<String> {
     let re = Regex::new(r"keyid ([0-9A-Fa-f]+)").unwrap();
-    if let Some(caps) = re.captures(&stdout) {
-        return Ok(caps.get(1).unwrap().as_str().to_uppercase());
-    }
-    Err(anyhow!(
-        "Failed to extract key id from gpg --list-packets output.\n\
-         stdout: {}\n\
-         stderr: {}",
-        stdout.trim(),
-        stderr.trim()
-    ))
+    re.captures(text)
+        .map(|c| c.get(1).unwrap().as_str().to_uppercase())
 }
 
 #[cfg(test)]
@@ -95,15 +103,26 @@ mod tests {
     use super::*;
 
     #[test]
-    fn extract_keyid_from_gpg_output() {
-        // Synthetic capture-only test against the regex.
+    fn extract_keyid_from_realistic_gpg_output() {
         let sample = "\
 :signature packet: algo 1, keyid 40C7DD112EDB4CA9
         version 4, created 1717..., md5len 0, sigclass 0x00
         digest algo 8, begin of digest aa bb
 ";
-        let re = Regex::new(r"keyid ([0-9A-Fa-f]+)").unwrap();
-        let caps = re.captures(sample).expect("regex should match");
-        assert_eq!(caps.get(1).unwrap().as_str(), "40C7DD112EDB4CA9");
+        assert_eq!(extract_keyid(sample).as_deref(), Some("40C7DD112EDB4CA9"));
+    }
+
+    #[test]
+    fn extract_keyid_uppercases_lowercase_input() {
+        // gpg in some configurations prints the keyid in lowercase;
+        // we always return the canonical uppercase form.
+        let sample = ":signature packet: algo 1, keyid 40c7dd112edb4ca9";
+        assert_eq!(extract_keyid(sample).as_deref(), Some("40C7DD112EDB4CA9"));
+    }
+
+    #[test]
+    fn extract_keyid_returns_none_when_absent() {
+        assert!(extract_keyid("no signature packet here").is_none());
+        assert!(extract_keyid("").is_none());
     }
 }
