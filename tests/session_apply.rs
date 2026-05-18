@@ -185,3 +185,79 @@ fn apply_rejects_unknown_op() {
 
     tk.session_apply(&session, &plan).assert_failure();
 }
+
+#[test]
+fn apply_dry_run_leaves_session_untouched() {
+    skip_unless!("dpkg-deb");
+
+    let tk = Toolkit::new();
+    let tmp = tempfile::tempdir().unwrap();
+
+    let input = DebFixture::new("example-app")
+        .version("1.0.0")
+        .file("/var/lib/example/data.bin", b"ORIGINAL\n".to_vec())
+        .build(&tmp.path().join("input.deb"));
+
+    // Bundle with a valid plan that, if actually applied, would change
+    // every field we check afterwards.
+    let bundle = tmp.path().join("bundle");
+    std::fs::create_dir_all(&bundle).unwrap();
+    std::fs::write(bundle.join("new_data.bin"), b"NEW\n").unwrap();
+    std::fs::write(
+        bundle.join("plan.json"),
+        r#"{ "steps": [
+            { "op": "rename-package", "new_name": "would-be-renamed" },
+            { "op": "reversion", "new_version": "9.9.9" },
+            { "op": "insert", "dest": "/var/lib/example/data.bin",
+              "sources": ["./new_data.bin"] }
+        ] }"#,
+    )
+    .unwrap();
+
+    let session = tmp.path().join("session");
+    tk.session_open(&input, &session).assert_success();
+
+    tk.session_apply_dry_run(&session, &bundle.join("plan.json"))
+        .assert_success();
+
+    // Control fields untouched.
+    let pkg = tk.session_read_field(&session, "Package").assert_success();
+    assert_eq!(pkg.stdout_trim(), "example-app");
+    let ver = tk.session_read_field(&session, "Version").assert_success();
+    assert_eq!(ver.stdout_trim(), "1.0.0");
+
+    // Data file untouched.
+    let data = std::fs::read(session.join("data/var/lib/example/data.bin")).unwrap();
+    assert_eq!(data, b"ORIGINAL\n");
+}
+
+#[test]
+fn apply_dry_run_catches_missing_source_file() {
+    skip_unless!("dpkg-deb");
+
+    let tk = Toolkit::new();
+    let tmp = tempfile::tempdir().unwrap();
+
+    let input = DebFixture::new("example-app")
+        .file("/usr/share/example/x", b"x\n".to_vec())
+        .build(&tmp.path().join("input.deb"));
+
+    // The plan references ./does-not-exist.bin — dry-run should
+    // surface this before the user runs the real apply.
+    let plan = tmp.path().join("plan.json");
+    std::fs::write(
+        &plan,
+        r#"{ "steps": [
+            { "op": "insert", "dest": "/var/lib/example/data.bin",
+              "sources": ["./does-not-exist.bin"] }
+        ] }"#,
+    )
+    .unwrap();
+
+    let session = tmp.path().join("session");
+    tk.session_open(&input, &session).assert_success();
+
+    tk.session_apply_dry_run(&session, &plan)
+        .assert_failure()
+        .stderr_contains("does not exist");
+}
