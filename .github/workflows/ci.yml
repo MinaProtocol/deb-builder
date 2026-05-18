@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+# Cancel superseded runs on the same PR when new commits are pushed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: cargo test (with integration deps)
+    # Pinned to 22.04 because the bundled GPG signing-key fixture
+    # under tests/res/ was generated with a digest algorithm that
+    # gpg 2.4 (default on ubuntu-24) rejects during verification.
+    # TODO: regenerate the fixture with a strong digest and move
+    # back to ubuntu-latest. Tracked separately.
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Debian tooling for integration tests
+        # `dpkg-deb`, `fakeroot`, and `gpg` ship by default on
+        # ubuntu-latest runners. `debsigs` and `debsig-verify` do not.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends debsigs debsig-verify
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache cargo target dir
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock', 'Cargo.toml') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy
+        run: cargo clippy --no-deps --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test --all-targets
+
+      - name: cargo test --doc
+        run: cargo test --doc
