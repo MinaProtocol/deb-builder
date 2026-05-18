@@ -1,0 +1,47 @@
+{
+    "description": "Rebrand example-app 1.0.0 (stable) as example-app-variant 2.0.0 (experimental). Swaps the data file and config, renames the package, bumps the version while rewriting `=` pins in dep fields, and flips the suite. Each step has a CLI-verb equivalent; see docs/session-manifest.md for the schema.",
+    "steps": [
+        {
+            "op": "remove",
+            "pattern": "/var/lib/example/data.bin"
+        },
+        {
+            "op": "insert",
+            "dest": "/var/lib/example/data.bin",
+            "sources": ["./data.bin"]
+        },
+        {
+            "op": "replace",
+            "pattern": "/etc/example/config.json",
+            "replacement": "./config.json"
+        },
+        {
+            "op": "rename-package",
+            "new_name": "example-app-variant"
+        },
+        {
+            "op": "reversion",
+            "new_version": "2.0.0",
+            "update_deps": true
+        },
+        {
+            "op": "replace-suite",
+            "new_suite": "experimental"
+        },
+        {
+            "op": "read-field",
+            "field": "Package",
+            "expected": "example-app-variant"
+        },
+        {
+            "op": "read-field",
+            "field": "Version",
+            "expected": "2.0.0"
+        },
+        {
+            "op": "read-field",
+            "field": "Suite",
+            "expected": "experimental"
+        }
+    ]
+}

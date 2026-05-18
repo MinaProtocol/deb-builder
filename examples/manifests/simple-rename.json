@@ -1,0 +1,7 @@
+{
+    "description": "Smallest possible manifest: rename a package and confirm.",
+    "steps": [
+        { "op": "rename-package", "new_name": "my-renamed-package" },
+        { "op": "read-field", "field": "Package", "expected": "my-renamed-package" }
+    ]
+}

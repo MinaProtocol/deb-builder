@@ -11,9 +11,38 @@ deb-toolkit sign          --deb … --key …
 deb-toolkit verify content --deb …  [+ optional metadata]
 deb-toolkit verify signature <deb> [--key <path|url>]
 deb-toolkit lookup sign-key <deb>
+deb-toolkit session <verb> …          (transactional .deb modification)
 ```
 
 Run `deb-toolkit <subcommand> --help` for the full flag list.
+
+## Session subsystem
+
+`deb-toolkit session` is a transactional `.deb` editor: extract a
+package into a session directory, mutate its control fields or data
+files, then repack into a fresh `.deb`. The original `.deb` is never
+touched until you call `session save`.
+
+```
+session open <input.deb> <session-dir>
+session save <session-dir> <output.deb> [--verify]
+session read-field    <session-dir> <field>
+session rename-package <session-dir> <new-name>
+session replace-suite  <session-dir> <new-suite>
+session reversion      <session-dir> <new-version> [--update-deps]
+session insert [-d]    <session-dir> <dest> <source>…
+session remove         <session-dir> <pattern>
+session move           <session-dir> <source> <destination>
+session replace        <session-dir> <pattern> <replacement>
+session apply          <session-dir> <plan.json>      (declarative mode)
+```
+
+The verbs are fine for interactive use. For CI-driven flows where the
+transformation itself is a reviewed artifact, use the **JSON manifest
+mode** via `session apply` — see
+[`docs/session-manifest.md`](docs/session-manifest.md) for the schema
+reference and [`examples/manifests/`](examples/manifests/) for worked
+examples (including a complete variant-rebrand bundle).
 
 ## Build
 

@@ -61,6 +61,14 @@ pub enum SessionCommand {
     ReplaceSuite(SessionReplaceSuiteArgs),
     /// Set the Version: field, optionally rewriting dep version constraints
     Reversion(SessionReversionArgs),
+    /// Apply a JSON manifest of session operations in a single process.
+    ///
+    /// Source paths inside the manifest (insert sources, replace
+    /// replacements) are resolved against the manifest's own directory,
+    /// so a folder containing a `.json` plan plus its data files is a
+    /// portable transformation bundle. See `docs/session-manifest.md`
+    /// for the schema reference and worked examples.
+    Apply(SessionApplyArgs),
 }
 
 #[derive(Args, Debug)]
@@ -139,6 +147,14 @@ pub struct SessionReversionArgs {
     /// Also rewrite version constraints in Depends / Pre-Depends / etc.
     #[arg(long = "update-deps", default_value_t = false)]
     pub update_deps: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct SessionApplyArgs {
+    /// Session directory previously created by `session open`
+    pub session_dir: String,
+    /// Path to the JSON manifest describing the steps to apply
+    pub manifest: String,
 }
 
 #[derive(Subcommand, Debug)]
