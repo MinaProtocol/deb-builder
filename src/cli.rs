@@ -155,6 +155,12 @@ pub struct SessionApplyArgs {
     pub session_dir: String,
     /// Path to the JSON manifest describing the steps to apply
     pub manifest: String,
+    /// Validate the manifest and log what would happen, but don't
+    /// mutate the session. Local source files referenced by `insert`
+    /// and `replace` are checked for existence; pattern matches and
+    /// control-field assertions are deferred to a real run.
+    #[arg(long = "dry-run", default_value_t = false)]
+    pub dry_run: bool,
 }
 
 #[derive(Subcommand, Debug)]

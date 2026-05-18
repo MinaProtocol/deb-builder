@@ -145,7 +145,7 @@ fn dispatch_session(cmd: SessionCommand) -> Result<()> {
                 .ok()
                 .and_then(|p| p.parent().map(|p| p.to_path_buf()))
                 .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
-            session::apply(&session, &plan, &manifest_dir)
+            session::apply(&session, &plan, &manifest_dir, args.dry_run)
         }
     }
 }
