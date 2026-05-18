@@ -255,6 +255,42 @@ deb-toolkit session apply /tmp/session /elsewhere/variant-bundle/plan.json
 (cd /tmp && deb-toolkit session apply /tmp/session ~/variant-bundle/plan.json)
 ```
 
+## Dry runs
+
+Pass `--dry-run` to `session apply` to validate the manifest against
+an opened session **without committing any change**:
+
+```bash
+deb-toolkit session apply /tmp/session ./plan.json --dry-run
+```
+
+What `--dry-run` checks:
+
+- **Parse** — schema is well-formed (unknown ops, missing required
+  fields, wrong types all fail before the first step runs).
+- **Local files exist** — every `sources` entry in `insert` and every
+  `replacement` in `replace` is resolved against the manifest
+  directory and verified to point at an existing file.
+- **Step shape** — `insert` with `directory: false` and multiple
+  sources is rejected (since the corresponding real run would fail).
+
+What `--dry-run` does **not** check:
+
+- **Glob match counts.** `remove` and `replace` patterns are evaluated
+  against the live data tree, so we can't tell at dry-run time
+  whether a pattern will match zero files (which would fail) without
+  scanning the session.
+- **`read-field` assertions.** Their value depends on the control
+  file's current state, which earlier (unapplied) steps would have
+  changed.
+- **Permission / disk-space issues** at write time.
+
+So `--dry-run` is a CI gate against the manifest itself — it catches
+the typos and broken bundle paths early, but doesn't promise a clean
+real run.
+
+The session directory is left bit-for-bit unchanged.
+
 ## Failure semantics
 
 Steps run sequentially. On the first failure, `apply` returns the error

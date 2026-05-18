@@ -234,29 +234,115 @@ impl Plan {
 /// bundle portable. For programmatically-constructed plans, pass the
 /// directory the source files live in (often the process cwd).
 ///
+/// When `dry_run` is true, no session mutations are performed: each
+/// step's intent is logged, local source files referenced by `insert`
+/// and `replace` are verified to exist, and parse-level errors still
+/// surface — but the control file and data tree under `<session>/` are
+/// left untouched. Useful for CI gates that want to validate a manifest
+/// against an opened session without committing to the change.
+///
 /// Errors abort the apply: see [module-level docs](self) for the
 /// failure-semantics rationale.
-pub fn apply(session: &Session, plan: &Plan, manifest_dir: &Path) -> Result<()> {
+pub fn apply(session: &Session, plan: &Plan, manifest_dir: &Path, dry_run: bool) -> Result<()> {
     if let Some(desc) = &plan.description {
         log::info!("Plan: {}", desc);
     }
-    log::info!("=== Applying {} step(s) ===", plan.steps.len());
+    if dry_run {
+        log::info!(
+            "=== DRY RUN: would apply {} step(s), no changes will be made ===",
+            plan.steps.len()
+        );
+    } else {
+        log::info!("=== Applying {} step(s) ===", plan.steps.len());
+    }
 
     for (idx, step) in plan.steps.iter().enumerate() {
         let step_num = idx + 1;
         log::info!("[{}/{}] {}", step_num, plan.steps.len(), step.summary());
-        apply_step(session, step, manifest_dir).with_context(|| {
-            format!(
-                "Step {} of {} failed ({})",
-                step_num,
-                plan.steps.len(),
-                step.summary()
-            )
-        })?;
+        if dry_run {
+            check_step(step, manifest_dir).with_context(|| {
+                format!(
+                    "Step {} of {} would fail ({})",
+                    step_num,
+                    plan.steps.len(),
+                    step.summary()
+                )
+            })?;
+        } else {
+            apply_step(session, step, manifest_dir).with_context(|| {
+                format!(
+                    "Step {} of {} failed ({})",
+                    step_num,
+                    plan.steps.len(),
+                    step.summary()
+                )
+            })?;
+        }
     }
 
-    log::info!("✓ All {} step(s) applied", plan.steps.len());
+    if dry_run {
+        log::info!(
+            "✓ Dry run complete: {} step(s) validated, no changes applied",
+            plan.steps.len()
+        );
+    } else {
+        log::info!("✓ All {} step(s) applied", plan.steps.len());
+    }
     Ok(())
+}
+
+/// Dry-run validation for a single step. Only checks what can be
+/// verified without mutating the session: that local source files
+/// referenced by `insert` / `replace` exist on disk, and that step
+/// fields are individually well-formed. Does **not** verify that
+/// `remove` / `move` patterns will match anything, since glob
+/// matching requires looking at the live data tree.
+fn check_step(step: &Step, manifest_dir: &Path) -> Result<()> {
+    match step {
+        Step::Insert {
+            sources, directory, ..
+        } => {
+            if sources.is_empty() {
+                return Err(anyhow!("insert: `sources` is empty"));
+            }
+            if !*directory && sources.len() > 1 {
+                return Err(anyhow!(
+                    "insert: {} sources but `directory` is false — must be true to use multiple sources",
+                    sources.len()
+                ));
+            }
+            for s in sources {
+                let p = resolve_local(manifest_dir, s);
+                if !p.exists() {
+                    return Err(anyhow!(
+                        "insert: source file does not exist: {}",
+                        p.display()
+                    ));
+                }
+            }
+            Ok(())
+        }
+        Step::Replace { replacement, .. } => {
+            let p = resolve_local(manifest_dir, replacement);
+            if !p.exists() {
+                return Err(anyhow!(
+                    "replace: replacement file does not exist: {}",
+                    p.display()
+                ));
+            }
+            Ok(())
+        }
+        // The remaining ops are pure metadata mutations or glob-driven
+        // operations whose outcome depends on session state. They have
+        // nothing to validate at dry-run time beyond what the schema
+        // already enforced at parse time.
+        Step::RenamePackage { .. }
+        | Step::ReplaceSuite { .. }
+        | Step::Reversion { .. }
+        | Step::Remove { .. }
+        | Step::Move { .. }
+        | Step::ReadField { .. } => Ok(()),
+    }
 }
 
 impl Step {
@@ -453,5 +539,83 @@ mod tests {
     fn resolve_local_relative_joins_manifest_dir() {
         let r = resolve_local(Path::new("/manifests"), "data/foo.tar.gz");
         assert_eq!(r, PathBuf::from("/manifests/data/foo.tar.gz"));
+    }
+
+    // --- check_step (dry-run validation) ---------------------------------
+
+    #[test]
+    fn check_step_insert_rejects_missing_source() {
+        let tmp = tempfile::tempdir().unwrap();
+        let step = Step::Insert {
+            dest: "/x".into(),
+            sources: vec!["./missing.bin".into()],
+            directory: false,
+        };
+        let err = check_step(&step, tmp.path()).unwrap_err();
+        assert!(err.to_string().contains("does not exist"), "{}", err);
+    }
+
+    #[test]
+    fn check_step_insert_accepts_existing_source() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::write(tmp.path().join("there.bin"), b"x").unwrap();
+        let step = Step::Insert {
+            dest: "/x".into(),
+            sources: vec!["./there.bin".into()],
+            directory: false,
+        };
+        check_step(&step, tmp.path()).unwrap();
+    }
+
+    #[test]
+    fn check_step_insert_rejects_multi_source_without_directory_flag() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::write(tmp.path().join("a"), b"a").unwrap();
+        std::fs::write(tmp.path().join("b"), b"b").unwrap();
+        let step = Step::Insert {
+            dest: "/x".into(),
+            sources: vec!["./a".into(), "./b".into()],
+            directory: false,
+        };
+        let err = check_step(&step, tmp.path()).unwrap_err();
+        assert!(err.to_string().contains("directory"), "{}", err);
+    }
+
+    #[test]
+    fn check_step_replace_rejects_missing_replacement() {
+        let tmp = tempfile::tempdir().unwrap();
+        let step = Step::Replace {
+            pattern: "/x".into(),
+            replacement: "./missing".into(),
+        };
+        let err = check_step(&step, tmp.path()).unwrap_err();
+        assert!(err.to_string().contains("does not exist"), "{}", err);
+    }
+
+    #[test]
+    fn check_step_metadata_ops_have_nothing_to_check() {
+        // None of these touch the filesystem at validate-time.
+        check_step(
+            &Step::RenamePackage {
+                new_name: "x".into(),
+            },
+            Path::new("/"),
+        )
+        .unwrap();
+        check_step(
+            &Step::Reversion {
+                new_version: "1.0".into(),
+                update_deps: false,
+            },
+            Path::new("/"),
+        )
+        .unwrap();
+        check_step(
+            &Step::Remove {
+                pattern: "/x/*".into(),
+            },
+            Path::new("/"),
+        )
+        .unwrap();
     }
 }

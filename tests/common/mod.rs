@@ -192,6 +192,15 @@ impl Toolkit {
             manifest.as_os_str(),
         ])
     }
+
+    pub fn session_apply_dry_run(&self, session_dir: &Path, manifest: &Path) -> CmdOutput {
+        self.session([
+            OsStr::new("apply"),
+            OsStr::new("--dry-run"),
+            session_dir.as_os_str(),
+            manifest.as_os_str(),
+        ])
+    }
 }
 
 impl Default for Toolkit {
