@@ -36,10 +36,21 @@ pub fn signature(deb: &str, debug: bool) -> Result<String> {
         return Err(anyhow!(msg));
     }
 
+    // Newer versions of debsig-verify route the diagnostic containing
+    // the `fake/<KEY_ID>` path to stderr; older versions printed it to
+    // stdout. Search both streams so the parse stays working across
+    // distro versions.
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let re = Regex::new(r"fake/([A-Z0-9]+):").unwrap();
-    match re.captures(&stdout) {
-        Some(caps) => Ok(caps.get(1).unwrap().as_str().to_string()),
-        None => Err(anyhow!("Failed to extract ID from output")),
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let re = Regex::new(r"fake/([A-Fa-f0-9]+)[:/]").unwrap();
+    if let Some(caps) = re.captures(&stdout).or_else(|| re.captures(&stderr)) {
+        return Ok(caps.get(1).unwrap().as_str().to_uppercase());
     }
+    Err(anyhow!(
+        "Failed to extract key id from debsig-verify output.\n\
+         stdout: {}\n\
+         stderr: {}",
+        stdout.trim(),
+        stderr.trim()
+    ))
 }
