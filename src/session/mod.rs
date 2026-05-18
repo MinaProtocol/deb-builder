@@ -4,6 +4,7 @@
 //! Mirrors the `scripts/debian/session/deb-session-*.sh` family on the mina
 //! `develop` branch.
 
+mod apply;
 mod compression;
 mod control;
 mod data;
@@ -11,6 +12,7 @@ mod metadata;
 mod open;
 mod save;
 
+pub use apply::{apply, Plan, Step};
 pub use compression::Compression;
 pub use metadata::Metadata;
 pub use open::open;

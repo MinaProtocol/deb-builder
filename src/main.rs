@@ -131,5 +131,21 @@ fn dispatch_session(cmd: SessionCommand) -> Result<()> {
             let session = session::Session::load(&args.session_dir)?;
             session.reversion(&args.new_version, args.update_deps)
         }
+        SessionCommand::Apply(args) => {
+            let session = session::Session::load(&args.session_dir)?;
+            let manifest_path = std::path::Path::new(&args.manifest);
+            let plan = session::Plan::load(manifest_path)?;
+            // Resolve relative source paths against the manifest's own
+            // directory, so a folder containing the .json plan plus its
+            // referenced data files is portable. Fall back to cwd for the
+            // edge case of `apply <session> ./foo.json` where the
+            // canonicalized parent is unavailable.
+            let manifest_dir = manifest_path
+                .canonicalize()
+                .ok()
+                .and_then(|p| p.parent().map(|p| p.to_path_buf()))
+                .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
+            session::apply(&session, &plan, &manifest_dir)
+        }
     }
 }
