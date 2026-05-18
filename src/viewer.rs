@@ -86,9 +86,7 @@ fn parse_keyid_with_gpg(sig: &[u8], debug: bool) -> Result<String> {
 
 /// Pull the issuer key id out of a `gpg --list-packets` stdout dump.
 /// Looks for the `keyid <HEX>` token that gpg embeds in signature
-/// packet lines, e.g.
-///
-///     :signature packet: algo 1, keyid 40C7DD112EDB4CA9
+/// packet lines (e.g. `:signature packet: algo 1, keyid 40C7DD112EDB4CA9`).
 ///
 /// The returned id is always uppercase. Returns `None` when no
 /// `keyid` token appears in the input.
