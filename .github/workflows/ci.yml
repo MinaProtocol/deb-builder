@@ -18,7 +18,12 @@ env:
 jobs:
   test:
     name: cargo test (with integration deps)
-    runs-on: ubuntu-latest
+    # Pinned to 22.04 because the bundled GPG signing-key fixture
+    # under tests/res/ was generated with a digest algorithm that
+    # gpg 2.4 (default on ubuntu-24) rejects during verification.
+    # TODO: regenerate the fixture with a strong digest and move
+    # back to ubuntu-latest. Tracked separately.
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
